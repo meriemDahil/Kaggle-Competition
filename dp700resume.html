@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Fabric & Azure SQL Study Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .search-bar {
+            padding: 20px 40px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-bar input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            padding: 0 40px;
+            overflow-x: auto;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .content {
+            padding: 40px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .module {
+            display: none;
+        }
+        
+        .module.active {
+            display: block;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .section:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .section-header:hover {
+            opacity: 0.9;
+        }
+        
+        .section-content {
+            padding: 20px;
+            display: none;
+            background: #f8f9fa;
+        }
+        
+        .section-content.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .arrow {
+            transition: transform 0.3s;
+        }
+        
+        .arrow.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .key-point {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        
+        .tip {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #721c24;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Microsoft Fabric & Azure SQL Study Guide</h1>
+            <p>Comprehensive Course Summary - Interactive Edition</p>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search for topics, keywords, or concepts...">
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-module="spark">Apache Spark</button>
+            <button class="tab" data-module="eventhouse">Eventhouse & KQL</button>
+            <button class="tab" data-module="lakehouse">Lakehouses</button>
+            <button class="tab" data-module="realtime">Real-Time Intelligence</button>
+            <button class="tab" data-module="warehouse">Data Warehouse</button>
+            <button class="tab" data-module="security">Security</button>
+            <button class="tab" data-module="azure-sql">Azure SQL</button>
+        </div>
+        
+        <div class="content">
+            <!-- Apache Spark Module -->
+            <div id="spark" class="module active">
+                <div class="section">
+                    <div class="section-header">
+                        <span>📊 What is Apache Spark?</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Definition:</strong> Distributed data processing framework for large-scale analytics across multiple processing nodes (Spark pool in Fabric)
+                        </div>
+                        <div class="key-point">
+                            <strong>Languages Supported:</strong> PySpark, Scala, Spark SQL
+                        </div>
+                        <div class="tip">
+                            <strong>Real-World Example:</strong> Retail company analyzing sales data from multiple stores simultaneously
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>🏗️ Spark Pool Architecture</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li><span class="highlight">Driver Program:</span> Coordinates distributed processes</li>
+                            <li><span class="highlight">Cluster Manager:</span> External service for acquiring and allocating resources</li>
+                            <li><span class="highlight">Worker Nodes:</span> Execute data processing tasks via executor processes</li>
+                        </ul>
+                        <div class="key-point">
+                            <strong>Pool Types:</strong>
+                            <ul>
+                                <li><strong>Starter Pools:</strong> Always on, no wait time</li>
+                                <li><strong>Custom Pools:</strong> Configurable, becomes default for workspace</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>⚙️ Advanced Configuration</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Native Execution Engine:</strong> Vectorized processing for Parquet/Delta formats - significantly improves query performance
+                        </div>
+                        <div class="key-point">
+                            <strong>High Concurrency Mode:</strong>
+                            <ul>
+                                <li>Share Spark sessions across multiple notebooks</li>
+                                <li>Independent execution via REPL cores</li>
+                                <li>Only first notebook is billed for compute</li>
+                            </ul>
+                        </div>
+                        <div class="warning">
+                            <strong>Important:</strong> Admins can disable pool customization at Capacity level
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>📓 Working with Notebooks</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Use Cases:</strong> Interactive data exploration and analysis
+                        </div>
+                        <div class="code">%%pyspark
+%%scala
+%%sql</div>
+                        <div class="tip">
+                            <strong>Magic Commands:</strong> Specify language using %% prefix
+                        </div>
+                        <div class="key-point">
+                            <strong>Preferred Data Format:</strong> <span class="highlight">Delta</span> (Delta Lake)
+                            <ul>
+                                <li>Supports transactions, versioning, streaming</li>
+                                <li>Relational database features on Spark</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>📊 Data Visualization</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Python libraries: matplotlib, seaborn</li>
+                            <li><span class="highlight">Built-in notebook charts</span> - default table view with chart customization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Eventhouse Module -->
+            <div id="eventhouse" class="module">
+                <div class="section">
+                    <div class="section-header">
+                        <span>🏛️ Eventhouse Overview</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Purpose:</strong> Store real-time event data from streaming sources
+                        </div>
+                        <div class="key-point">
+                            <strong>Storage:</strong> KQL databases with tables queryable via KQL or subset of SQL
+                        </div>
+                        <div class="key-point">
+                            <strong>Key Features:</strong>
+                            <ul>
+                                <li>Automatic partitioning by ingestion time</li>
+                                <li>Time-series data optimization</li>
+                                <li>Real-Time Dashboards for visualization</li>
+                                <li>Fabric Activator for automated actions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>🔍 KQL Database Components</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li><span class="highlight">Tables:</span> Data storage</li>
+                            <li><span class="highlight">Stored Functions:</span> Encapsulated queries with parameters</li>
+                            <li><span class="highlight">Materialized Views:</span> Precomputed aggregations, auto-update with new data</li>
+                            <li><span class="highlight">Shortcuts:</span> External data references</li>
+                            <li><span class="highlight">Data Streams:</span> Real-time ingestion</li>
+                        </ul>
+                        <div class="tip">
+                            <strong>Materialized Views:</strong> Store precomputed results + delta of new data = faster queries
+                        </div>
+                        <div class="tip">
+                            <strong>Join Optimization:</strong> Place smaller table first to reduce rows processed
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lakehouse Module -->
+            <div id="lakehouse" class="module">
+                <div class="section">
+                    <div class="section-header">
+                        <span>🏞️ Lakehouse Fundamentals</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Definition:</strong> Database built on data lake using Delta format tables
+                        </div>
+                        <div class="key-point">
+                            <strong>Combines:</strong> SQL analytics (warehouse) + flexibility/scalability (data lake)
+                        </div>
+                        <div class="key-point">
+                            <strong>Key Features:</strong>
+                            <ul>
+                                <li>Schema-on-read format</li>
+                                <li>ACID transactions via Delta Lake</li>
+                                <li>All data formats supported</li>
+                                <li>Auto-scaling & high availability</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>🏅 Medallion Architecture</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <table class="comparison-table">
+                            <tr>
+                                <th>Layer</th>
+                                <th>Description</th>
+                                <th>Purpose</th>
+                            </tr>
+                            <tr>
+                                <td><strong>🥉 Bronze</strong></td>
+                                <td>Raw layer</td>
+                                <td>Data in original format</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🥈 Silver</strong></td>
+                                <td>Valid layer</td>
+                                <td>Cleaned, deduplicated, merged - consistent format</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🥇 Gold</strong></td>
+                                <td>Enriched layer</td>
+                                <td>Business-specific aggregations, ready for analytics/ML</td>
+                            </tr>
+                        </table>
+                        <div class="tip">
+                            <strong>Gold Layer Variations:</strong> Multiple gold layers for different teams (finance, sales, data science) or use Data Warehouse as gold layer
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>🔐 Security Considerations</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li><strong>Bronze:</strong> Restricted access, read-only for most</li>
+                            <li><strong>Silver:</strong> Specific member access for transformations</li>
+                            <li><strong>Gold:</strong> Broad access for consumption teams</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Real-Time Intelligence Module -->
+            <div id="realtime" class="module">
+                <div class="section">
+                    <div class="section-header">
+                        <span>⚡ Real-Time Analytics Basics</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Events:</strong> Records of system activities (clicks, purchases, sensor readings)
+                        </div>
+                        <div class="key-point">
+                            <strong>Streams:</strong> Continuous sequence of events ordered by time
+                        </div>
+                        <div class="tip">
+                            <strong>Think of it:</strong> Events = digital records, Streams = delivery mechanism
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>🔄 Solution Components</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <ol>
+                            <li><span class="highlight">Data Ingestion:</span> Capture from sources (IoT, CDC, APIs, logs)</li>
+                            <li><span class="highlight">Stream Processing:</span> Transform and analyze in-flight</li>
+                            <li><span class="highlight">Low-Latency Storage:</span> Fast access storage</li>
+                            <li><span class="highlight">Interactive Dashboards:</span> Real-time visualization</li>
+                            <li><span class="highlight">Automated Decision Making:</span> Event-driven triggers</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>📡 Eventstreams</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Components:</strong>
+                            <ul>
+                                <li><strong>Sources:</strong> Where data originates</li>
+                                <li><strong>Transformations:</strong> Optional processing</li>
+                                <li><strong>Destinations:</strong> Where processed data goes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Warehouse Module -->
+            <div id="warehouse" class="module">
+                <div class="section">
+                    <div class="section-header">
+                        <span>🏢 Fabric Data Warehouse</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Features:</strong> Relational, fully managed, scalable, T-SQL capabilities
+                        </div>
+                        <div class="key-point">
+                            <strong>Storage:</strong> OneLake using Delta Parquet format
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>📐 Schema Design</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <table class="comparison-table">
+                            <tr>
+                                <th>Table Type</th>
+                                <th>Purpose</th>
+                            </tr>
+                            <tr>
+                                <td><strong>Fact Tables</strong></td>
+                                <td>Numerical data for analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dimension Tables</strong></td>
+                                <td>Descriptive context</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Module -->
+            <div id="security" class="module">
+                <div class="section">
+                    <div class="section-header">
+                        <span>🛡️ Dynamic Data Masking (DDM)</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Purpose:</strong> Obscure sensitive information from non-privileged users
+                        </div>
+                        <div class="key-point">
+                            <strong>Masking Types:</strong>
+                            <ul>
+                                <li><strong>Full:</strong> Complete masking</li>
+                                <li><strong>Email:</strong> Shows first letter + domain</li>
+                                <li><strong>Partial:</strong> Expose certain characters</li>
+                                <li><strong>Random:</strong> For numeric data</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>🔒 Row-Level Security (RLS)</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Implementation Steps:</strong>
+                            <ol>
+                                <li>Create filter predicate (inline table-valued function)</li>
+                                <li>Create security policy invoking the function</li>
+                            </ol>
+                        </div>
+                        <div class="tip">
+                            <strong>Best Practices:</strong> Separate schemas, avoid type conversions, minimize table joins
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <span>📋 Column-Level Security (CLS)</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="key-point">
+                            <strong>Implementation:</strong>
+                            <ul>
+                                <li>Create roles</li>
+                                <li>GRANT SELECT on tables</li>
+                                <li>DENY SELECT on specific columns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Azure SQL Module -->
+            <div id="azure-sql" class="module">
+                <div class="section">
+                    <div class="section-header">
+                        <span>☁️ Azure SQL Services</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <table class="comparison-table">
+                            <tr>
+                                <th>Service</th>
+                                <th>Best For</th>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure SQL Database</strong></td>
+                                <td>Modern cloud apps, latest features, minimal cost</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure SQL Managed Instance</strong></td>
+                                <td>Enterprise security, minimal migration changes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SQL Server on VMs</strong></td>
+                                <td>Full control, specific SQL Server versions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Elastic Pool</strong></td>
+                                <td>Variable loads, resource sharing across DBs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure SQL Edge</strong></td>
+                                <td>IoT, streaming time-series data</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Module switching
+        const tabs = document.querySelectorAll('.tab');
+        const modules = document.querySelectorAll('.module');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetModule = tab.getAttribute('data-module');
+                
+                // Remove active class from all tabs and modules
+                tabs.forEach(t => t.classList.remove('active'));
+                modules.forEach(m => m.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding module
+                tab.classList.add('active');
+                document.getElementById(targetModule).classList.add('active');
+            });
+        });
+        
+        // Section toggling
+        const sectionHeaders = document.querySelectorAll('.section-header');
+        
+        sectionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const arrow = header.querySelector('.arrow');
+                
+                content.classList.toggle('active');
+                arrow.classList.toggle('rotated');
+            });
+        });
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const sections = document.querySelectorAll('.section');
+            
+            sections.forEach(section => {
+                const text = section.textContent.toLowerCase();
+                if (text.includes(searchTerm) || searchTerm === '') {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
