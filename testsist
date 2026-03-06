@@ -1,0 +1,115 @@
+list of test to do:
+
+DATASET LOADING TESTS
+- Load dataset from CSV
+- Load dataset from Parquet
+- Load dataset from HuggingFace dataset
+- Handle missing dataset file
+- Handle empty dataset
+- Extract schema correctly
+- Validate column metadata detection
+
+
+STRUCTURAL VALIDATION TESTS
+- Validate column count equality
+- Validate column names equality
+- Detect column name mismatches
+- Detect column order differences
+- Validate data type compatibility
+- Detect data type mismatches
+- Validate nullable constraints
+- Detect schema drift (added column)
+- Detect schema drift (removed column)
+- Detect schema drift (renamed column)
+
+
+ROW COUNT VALIDATION
+- Validate total row count equality
+- Detect missing rows in SQL output
+- Detect extra rows in SQL output
+
+
+PRIMARY KEY VALIDATION
+- Validate primary key uniqueness
+- Detect duplicate primary keys
+- Validate key coverage between datasets
+
+
+DUPLICATE DETECTION
+- Detect duplicate rows in Talend output
+- Detect duplicate rows in SQL output
+
+
+ROW HASH VALIDATION
+- Generate row fingerprint hash
+- Compare hash sets between datasets
+- Detect missing hashes
+- Detect additional hashes
+- Compute hash match percentage
+
+
+ROW LEVEL DIFF TESTS
+- Detect value mismatch per column
+- Detect row missing in SQL
+- Detect row missing in Talend
+- Detect multiple column differences in same row
+
+
+NULL VALUE VALIDATION
+- Compare null count per column
+- Compare null distribution per column
+- Detect null vs non-null mismatch
+
+
+STATISTICAL VALIDATION
+- Compare mean for numeric columns
+- Compare median for numeric columns
+- Compare min and max values
+- Compare standard deviation
+- Compare categorical value distribution
+- Detect distribution drift
+
+
+BUSINESS RULE VALIDATION
+- Validate numeric ranges (ex: price >= 0)
+- Validate date constraints (ex: no future dates)
+- Validate mandatory fields not null
+- Validate domain values (allowed categories)
+
+
+DATA CONSISTENCY VALIDATION
+- Validate aggregation consistency
+- Validate totals consistency
+- Validate group-by result equivalence
+
+
+PERFORMANCE TESTS
+- Measure dataset loading time
+- Measure validation execution time
+- Measure hash generation time
+- Measure memory usage
+
+
+LARGE DATASET TESTS
+- Validate processing with 1M rows
+- Validate processing with chunked datasets
+- Validate streaming comparison
+
+
+ERROR HANDLING TESTS
+- Handle corrupted dataset
+- Handle incompatible schemas
+- Handle invalid config rules
+
+
+EXPORT TESTS
+- Export validation_report.json
+- Export dataset_diff.csv
+- Export summary_metrics.json
+- Export validation logs
+
+
+PIPELINE EXECUTION TESTS
+- Execute full validation pipeline
+- Validate pipeline step ordering
+- Validate pipeline failure handling
